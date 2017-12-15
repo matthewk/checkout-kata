@@ -102,16 +102,17 @@ object Main extends App
       basketView(checkout, basket)
     )
 
+  case class ExecutionParams(input: List[String], checkout: Checkout, basket: Basket)
 
   sealed trait MenuItem {
     def label: String
     def description: String
-    def execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)]
+    def execution: ExecutionParams => Option[(Checkout, Basket)]
     def matcher: String => Boolean = (input: String) => input.equalsIgnoreCase(label) || input.equalsIgnoreCase(label.take(1))
-    def apply(input: List[String], checkout: Checkout, basket: Basket): Unit = {
+    def apply(executionParams: ExecutionParams): Unit = {
       println(clearScreen)
       println(appTitle("Checkout Kata"))
-      execution(input, checkout, basket) match {
+      execution(executionParams) match {
         case Some((c, b)) => waitInput(c, b)
         case _            => println("*******")
       }
@@ -124,21 +125,23 @@ object Main extends App
     * abstract away repeated implementation
     */
   object MenuItem {
+    
+    
     case object AddItems extends MenuItem {
       val label: String = "add"
 
       val description: String = "Add Item"
 
-      val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, checkout, basket) => {
-        val result = ItemValidatorNel.validateAddItems(input.map(_.toUpperCase), catalogue)
+      val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
+        val result = ItemValidatorNel.validateAddItems(executionParams.input.map(_.toUpperCase), catalogue)
         result.fold(
           err => {
-            updatedBasket(basket)
+            updatedBasket(executionParams.basket)
             error(err.toList)
-            Some((checkout, basket))
+            Some((executionParams.checkout, executionParams.basket))
           },
           i => {
-            val newBasket = basket.addItems(i)
+            val newBasket = executionParams.basket.addItems(i)
             updatedBasket(newBasket)
             Some((checkout, newBasket))
           }
@@ -151,9 +154,9 @@ object Main extends App
 
       override val description: String = "view available items"
 
-      override val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, checkout, basket) => {
+      override val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
         println(catalogueView)
-        Some((checkout, basket))
+        Some((executionParams.checkout, executionParams.basket))
       }
     }
 
@@ -162,10 +165,10 @@ object Main extends App
 
       override val description: String = "empty basket"
 
-      override val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, checkout, basket) => {
+      override val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
         val newBasket = Basket.Empty
-        println(basketView(checkout, newBasket))
-        Some((checkout, newBasket))
+        println(basketView(executionParams.checkout, newBasket))
+        Some((executionParams.checkout, newBasket))
       }
 
     }
@@ -175,9 +178,9 @@ object Main extends App
 
       override val description: String = "show basket"
 
-      override val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, ckeckout, basket) => {
-        println(basketView(ckeckout, basket))
-        Some((checkout, basket))
+      override val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
+        println(basketView(executionParams.checkout, executionParams.basket))
+        Some((executionParams.checkout, executionParams.basket))
       }
     }
 
@@ -186,9 +189,9 @@ object Main extends App
 
       override val description: String = "show offers"
 
-      override val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, ckeckout, basket) => {
-        println(offerView(checkout.rules))
-        Some((checkout, basket))
+      override val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
+        println(offerView(executionParams.checkout.rules))
+        Some((executionParams.checkout, executionParams.basket))
       }
     }
 
@@ -197,7 +200,7 @@ object Main extends App
 
       override val description: String = "leave the store"
 
-      override val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, checkout, basket) => {
+      override val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
         println("Thank you! Goodbye :)")
         None
       }
@@ -208,10 +211,10 @@ object Main extends App
 
       override val description: String = ""
 
-      override val execution: (List[String], Checkout, Basket) => Option[(Checkout, Basket)] = (input, checkout, basket) => {
-        println(basketView(checkout, basket))
-        println(yellow(s"I didn't understand the command ${input.mkString(" ")}"))
-        Some((checkout, basket))
+      override val execution: ExecutionParams => Option[(Checkout, Basket)] = executionParams => {
+        println(basketView(executionParams.checkout, executionParams.basket))
+        println(yellow(s"I didn't understand the command ${executionParams.input.mkString(" ")}"))
+        Some((executionParams.checkout, executionParams.basket))
       }
     }
 
@@ -224,25 +227,25 @@ object Main extends App
     print(reset(bold("?")))
     readLine.split("[ \t]+").toList match {
       case input :: x if MenuItem.ShowBasket.matcher(input) =>
-        MenuItem.ShowBasket(x, checkout, basket)
+        MenuItem.ShowBasket(ExecutionParams(x, checkout, basket))
 
       case input :: x if MenuItem.MenuCatalogue.matcher(input) =>
-        MenuItem.MenuCatalogue(x, checkout, basket)
+        MenuItem.MenuCatalogue(ExecutionParams(x, checkout, basket))
 
       case input :: x if MenuItem.AddItems.matcher(input) =>
-        MenuItem.AddItems(x, checkout, basket)
+        MenuItem.AddItems(ExecutionParams(x, checkout, basket))
 
       case input :: x if MenuItem.MenuEmpty.matcher(input) =>
-        MenuItem.MenuEmpty(x, checkout, basket)
+        MenuItem.MenuEmpty(ExecutionParams(x, checkout, basket))
 
       case input :: x if MenuItem.ShowOffers.matcher(input) =>
-        MenuItem.ShowOffers(x, checkout, basket)
+        MenuItem.ShowOffers(ExecutionParams(x, checkout, basket))
 
       case input :: x if MenuItem.Quit.matcher(input) =>
-        MenuItem.Quit(x, checkout, basket)
+        MenuItem.Quit(ExecutionParams(x, checkout, basket))
 
       case cmd =>
-        MenuItem.Unknown(cmd, checkout, basket)
+        MenuItem.Unknown(ExecutionParams(cmd, checkout, basket))
     }
   }
 

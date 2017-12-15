@@ -1,8 +1,8 @@
 import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
-import domain._
 import domain.SKU._
+import domain._
 
 
 /**
