@@ -1,5 +1,5 @@
+import com.matthewk.domain._
 import org.scalatest.{FunSpec, Matchers}
-import domain._
 
 class StringSKUConverterSpec extends FunSpec with Matchers {
 
@@ -11,7 +11,7 @@ class StringSKUConverterSpec extends FunSpec with Matchers {
         val stringSKUConverter = new StringSKUConverter(input)
         stringSKUConverter.toSKU match {
           case ValidSKU(_) => fail(s"Should only extract letters from $input")
-          case InvalidSKU => succeed
+          case InvalidSKU  => succeed
         }
       }
 
@@ -20,7 +20,7 @@ class StringSKUConverterSpec extends FunSpec with Matchers {
         val stringSKUConverter = new StringSKUConverter(input)
         stringSKUConverter.toSKU match {
           case ValidSKU(c) => c should be('A')
-          case InvalidSKU => fail(s"Could not extract an SKU from $input")
+          case InvalidSKU  => fail(s"Could not extract an SKU from $input")
         }
       }
 
@@ -29,7 +29,7 @@ class StringSKUConverterSpec extends FunSpec with Matchers {
         val stringSKUConverter = new StringSKUConverter(input)
         stringSKUConverter.toSKU match {
           case ValidSKU(_) => fail(s"should only extract single letters from $input")
-          case InvalidSKU => stringSKUConverter.toSKU.toString should be("?")
+          case InvalidSKU  => stringSKUConverter.toSKU.toString should be("?")
         }
       }
 
@@ -38,7 +38,7 @@ class StringSKUConverterSpec extends FunSpec with Matchers {
         val stringSKUConverter = new StringSKUConverter(input)
         stringSKUConverter.toSKU match {
           case ValidSKU(_) => fail(s"could not extract an SKU from $input")
-          case InvalidSKU => succeed
+          case InvalidSKU  => succeed
         }
       }
     }

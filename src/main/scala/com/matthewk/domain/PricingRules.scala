@@ -1,4 +1,4 @@
-package domain
+package com.matthewk.domain
 
 case class PricingRules private(rules: List[Rule]) {
 

@@ -1,5 +1,5 @@
-import domain.SKU._
-import domain._
+import com.matthewk.domain.SKU._
+import com.matthewk.domain._
 import org.scalatest.{FunSpec, Matchers}
 
 class PricingRulesSpec extends FunSpec with Matchers {

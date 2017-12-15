@@ -1,4 +1,4 @@
-package domain
+package com.matthewk.domain
 
 sealed trait DomainValidation {
   def message: String
@@ -22,4 +22,8 @@ case class QuantityError(quantity: Int) extends DomainValidation {
 
 case object EmptyInputError extends DomainValidation {
   val message = "You did not provide any SKU codes"
+}
+
+case class UnknownInputError(cmd: String) extends DomainValidation {
+  val message = s"I could not understand: $cmd"
 }

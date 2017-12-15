@@ -1,5 +1,5 @@
-import domain._
-import domain.SKU._
+import com.matthewk.domain.SKU._
+import com.matthewk.domain._
 import org.scalatest.{FunSpec, Matchers}
 
 

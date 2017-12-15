@@ -1,14 +1,12 @@
-package domain
+package com.matthewk.domain
 
 case class Basket private(items: List[Item]) {
 
-  def addItem(item: Item): Basket = copy(items = items :+ item)
+  def addItems(newItems: List[Item]): Basket = copy(items = (this.items ++ newItems).sortBy(_.sku.toString))
 
-  def addItems(newItems: List[Item]): Basket = copy(items = newItems.flatMap(i => addItem(i).items))
+  lazy val totalPrice: Price = (items.map(_.price) :+ Price.Zero).reduce(_ + _)
 
-  lazy val total: Price = (items.map(_.price) :+ Price.Zero).reduce(_ + _)
-
-  def renderWithSavings(rules: PricingRules): String = {
+  lazy val renderWithSavings: PricingRules => String = rules => {
     items.groupBy(_.sku).map {
       case (_, v) =>
         val cost = rules.getSavingForItem(v.head, v.size)
