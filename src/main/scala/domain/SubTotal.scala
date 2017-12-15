@@ -1,4 +1,4 @@
-package models
+package domain
 
 case class SubTotal(remainingItems: Basket, price: Price = Price.Zero) {
   val asTotal: Price = price + remainingItems.total

@@ -1,6 +1,6 @@
-import models._
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import models.SKU._
+import domain._
+import domain.SKU._
+import org.scalatest.{FunSpec, Matchers}
 
 class CheckoutSpec extends FunSpec with Matchers {
 
@@ -9,9 +9,8 @@ class CheckoutSpec extends FunSpec with Matchers {
       val item = Item("A".toSKU, Price(2))
 
       Checkout(
-        Basket(item, item, item, item),
         PricingRules.Empty
-      ).total should be (
+      ).total(Basket(item, item, item, item)).cost should be(
         Price(8)
       )
     }
@@ -21,11 +20,10 @@ class CheckoutSpec extends FunSpec with Matchers {
       val itemB = Item("B".toSKU, Price(5))
 
       Checkout(
-        Basket(itemA, itemA, itemB),
         PricingRules(
           QuantityRule(itemA, 2, Price(5))
         )
-      ).total should be (Price(10))
+      ).total(Basket(itemA, itemA, itemB)).cost should be(Price(10))
     }
   }
 }

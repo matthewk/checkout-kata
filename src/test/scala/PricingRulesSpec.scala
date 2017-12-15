@@ -1,5 +1,5 @@
-import models.SKU._
-import models._
+import domain.SKU._
+import domain._
 import org.scalatest.{FunSpec, Matchers}
 
 class PricingRulesSpec extends FunSpec with Matchers {
@@ -18,7 +18,7 @@ class PricingRulesSpec extends FunSpec with Matchers {
       )
     }
 
-    it("should return a price based on its contained rules for a matching quantity of items with an associated price rule plus a price for the unmatched quantity of items") {
+    it("should provide a total price having applied price rules where applicable") {
       val itemA = Item("A".toSKU, Price(5))
       val itemB = Item("B".toSKU, Price(8))
 
@@ -34,7 +34,7 @@ class PricingRulesSpec extends FunSpec with Matchers {
       )
     }
 
-    it("should return a price based on its contained rules for a matching quantity of items with multiple associated price rules plus a price for the unmatched quantity of items") {
+    it("should provide a total price having applied multiple price rules where applicable") {
       val itemA = Item("A".toSKU, Price(5))
       val itemB = Item("B".toSKU, Price(8))
 
@@ -46,26 +46,9 @@ class PricingRulesSpec extends FunSpec with Matchers {
         Basket(
           itemA, itemB, itemA, itemB, itemA, itemB, itemB, itemB, itemA, itemA
         )
-      ).asTotal should be (
-        Price(45)
+      ).asTotal should be(
+        Price(44)
       )
-    }
-
-    it("should return a price based on the greatest saving") {
-      val itemA = Item("A".toSKU, Price(5))
-      val itemB = Item("B".toSKU, Price(8))
-
-      val rules = PricingRules(
-        QuantityRule(itemA, 2, Price(6)),
-        QuantityRule(itemB, 3, Price(11)),
-        QuantityRule(itemA, 3, Price(12))
-      )
-
-      val basket = Basket(
-        itemA, itemB, itemA, itemB, itemA, itemB, itemB, itemB, itemA, itemA
-      )
-
-      rules.applyGreatestSavingTo(basket).asTotal should be(Price(44))
     }
   }
 }
